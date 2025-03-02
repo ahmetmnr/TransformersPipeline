@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformers Pipeline Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🤗 Transformers Pipeline Demo</h1>
+            <p>HuggingFace Transformers kütüphanesi ile modern NLP uygulamaları</p>
+            <div class="gpu-info">
+                {% if "GPU" in gpu_info %}
+                <p class="gpu-available">🚀 {{ gpu_info }}</p>
+                {% else %}
+                <p class="gpu-unavailable">⚠️ {{ gpu_info }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="duygu-analizi">😊 Duygu Analizi</button>
+                <button class="tab-button" data-tab="metin-uretme">✍️ Metin Üretme</button>
+                <button class="tab-button" data-tab="maskeleme">🎭 Maskeleme</button>
+                <button class="tab-button" data-tab="soru-cevaplama">❓ Soru Cevaplama</button>
+                <button class="tab-button" data-tab="ozetleme">📝 Özetleme</button>
+                <button class="tab-button" data-tab="ceviri">🌐 Çeviri</button>
+                <button class="tab-button" data-tab="ner">🏷️ Varlık İsmi Tanıma</button>
+                <button class="tab-button" data-tab="turkce-maskeleme">🇹🇷 Türkçe Maskeleme</button>
+                <button class="tab-button" data-tab="metin-siniflandirma">📋 Metin Sınıflandırma</button>
+                <button class="tab-button" data-tab="sifir-atis">📋 Sıfır-Atış Sınıflandırma</button>
+                <button class="tab-button" data-tab="cumle-benzerligi">🔄 Cümle Benzerliği</button>
+                <button class="tab-button" data-tab="gorsel-soru">🖼️ Görsel Soru Cevaplama</button>
+                <button class="tab-button" data-tab="metin-duzeltme">📝 Metin Düzeltme</button>
+                <button class="tab-button" data-tab="cok-duygu">😊 Çok Sınıflı Duygu Analizi</button>
+                <button class="tab-button" data-tab="konusma-tanima">🎤 Konuşma Tanıma</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Duygu Analizi -->
+                <div class="tab-pane active" id="duygu-analizi">
+                    <h2>Duygu Analizi</h2>
+                    <div class="form-group">
+                        <label for="duygu-dil">Dil:</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="duygu-dil" value="en" checked> İngilizce
+                            </label>
+                            <label>
+                                <input type="radio" name="duygu-dil" value="tr"> Türkçe
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="duygu-metin">Metni Girin:</label>
+                        <textarea id="duygu-metin" rows="3" placeholder="Analiz edilecek metni buraya yazın...">I really enjoyed this movie, it was fantastic!</textarea>
+                    </div>
+                    <button id="duygu-button" class="primary-button">Duygu Analizi Yap</button>
+                    <div id="duygu-output" class="output-area"></div>
+                </div>
+
+                <!-- Metin Üretme -->
+                <div class="tab-pane" id="metin-uretme">
+                    <h2>Metin Üretme</h2>
+                    <div class="form-group">
+                        <label for="baslangic-metin">Başlangıç Metni:</label>
+                        <textarea id="baslangic-metin" rows="3" placeholder="Metin üretmek için başlangıç metni girin...">Artificial intelligence will</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="max-uzunluk">Maksimum Uzunluk:</label>
+                            <input type="range" id="max-uzunluk" min="10" max="100" value="50">
+                            <span id="max-uzunluk-value">50</span>
+                        </div>
+                        <div class="form-group half">
+                            <label for="tekrar-sayisi">Üretilecek Metin Sayısı:</label>
+                            <input type="range" id="tekrar-sayisi" min="1" max="3" value="2" step="1">
+                            <span id="tekrar-sayisi-value">2</span>
+                        </div>
+                    </div>
+                    <button id="uretme-button" class="primary-button">Metin Üret</button>
+                    <div id="uretilen-output" class="output-area"></div>
+                </div>
+
+                <!-- Maskeleme -->
+                <div class="tab-pane" id="maskeleme">
+                    <h2>Maskeleme</h2>
+                    <div class="form-group">
+                        <label for="mask-metin">Maskelenmiş Metin:</label>
+                        <textarea id="mask-metin" rows="3" placeholder="Maskeli metni buraya yazın...">HuggingFace is creating a <mask> that the community uses to solve NLP tasks.</textarea>
+                    </div>
+                    <button id="mask-button" class="primary-button">Maskeyi Doldur</button>
+                    <div id="mask-output" class="output-area"></div>
+                </div>
+
+                <!-- Soru Cevaplama -->
+                <div class="tab-pane" id="soru-cevaplama">
+                    <h2>Soru Cevaplama</h2>
+                    <div class="form-group">
+                        <label for="soru-input">Soru:</label>
+                        <textarea id="soru-input" rows="2" placeholder="Sorunuzu buraya yazın...">HuggingFace nedir?</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="soru-metin">Metin:</label>
+                        <textarea id="soru-metin" rows="6" placeholder="Sorunun cevaplanacağı metni buraya yazın...">HuggingFace, doğal dil işleme alanında kullanılan açık kaynaklı kütüphaneler ve modeller geliştiren bir şirkettir. Transformers kütüphanesi ile tanınır ve yapay zeka topluluğuna katkıda bulunur.</textarea>
+                    </div>
+                    <button id="soru-button" class="primary-button">Soruyu Cevapla</button>
+                    <div id="soru-output" class="output-area"></div>
+                </div>
+
+                <!-- Özetleme -->
+                <div id="ozetleme" class="tab-pane">
+                    <h2>📝 Özetleme</h2>
+                    <div class="form-group">
+                        <label for="uzun-metin">Uzun Metin:</label>
+                        <textarea id="uzun-metin" rows="6" placeholder="Özetlenecek metni buraya girin..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="min-uzunluk">Minimum Özet Uzunluğu:</label>
+                            <div class="range-container">
+                                <input type="range" id="min-uzunluk" min="10" max="100" value="30">
+                                <span id="min-uzunluk-value">30</span>
+                            </div>
+                        </div>
+                        <div class="form-group half">
+                            <label for="max-ozet-uzunluk">Maksimum Özet Uzunluğu:</label>
+                            <div class="range-container">
+                                <input type="range" id="max-ozet-uzunluk" min="50" max="500" value="100">
+                                <span id="max-ozet-uzunluk-value">100</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="ozet-button" class="primary-button">Özetle</button>
+                    <div id="ozet-output" class="output-area"></div>
+                </div>
+
+                <!-- Çeviri -->
+                <div class="tab-pane" id="ceviri">
+                    <h2>Çeviri</h2>
+                    <div class="form-group">
+                        <label for="ceviri-metin">Çevrilecek Metin:</label>
+                        <textarea id="ceviri-metin" rows="3" placeholder="Çevrilecek metni buraya yazın...">HuggingFace is a company that provides tools for natural language processing.</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="kaynak-dil">Kaynak Dil:</label>
+                            <select id="kaynak-dil">
+                                <option value="en" selected>İngilizce</option>
+                                <option value="fr">Fransızca</option>
+                                <option value="de">Almanca</option>
+                                <option value="es">İspanyolca</option>
+                            </select>
+                        </div>
+                        <div class="form-group half">
+                            <label for="hedef-dil">Hedef Dil:</label>
+                            <select id="hedef-dil">
+                                <option value="tr" selected>Türkçe</option>
+                                <option value="fr">Fransızca</option>
+                                <option value="de">Almanca</option>
+                                <option value="es">İspanyolca</option>
+                                <option value="ru">Rusça</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="ceviri-button" class="primary-button">Çevir</button>
+                    <div id="ceviri-output" class="output-area"></div>
+                </div>
+
+                <!-- Varlık İsmi Tanıma (NER) -->
+                <div class="tab-pane" id="ner">
+                    <h2>Varlık İsmi Tanıma (NER)</h2>
+                    <div class="form-group">
+                        <label for="ner-metin">Metin:</label>
+                        <textarea id="ner-metin" rows="3" placeholder="Metni buraya yazın...">Apple Inc. is planning to open a new store in Istanbul, Turkiye next year. CEO Tim Cook announced this during his visit to Berlin, Germany.</textarea>
+                    </div>
+                    <button id="ner-button" class="primary-button">Varlıkları Tanı</button>
+                    <div id="ner-output" class="output-area"></div>
+                </div>
+
+                <!-- Türkçe Maskeleme -->
+                <div class="tab-pane" id="turkce-maskeleme">
+                    <h2>Türkçe Maskeleme</h2>
+                    <div class="form-group">
+                        <label for="turkce-mask-metin">Maskelenmiş Türkçe Metin:</label>
+                        <textarea id="turkce-mask-metin" rows="3" placeholder="Maskeli metni buraya yazın...">Yapay zeka [MASK] alanında devrim yaratıyor.</textarea>
+                    </div>
+                    <button id="turkce-mask-button" class="primary-button">Maskeyi Doldur</button>
+                    <div id="turkce-mask-output" class="output-area"></div>
+                </div>
+
+                <!-- Metin Sınıflandırma -->
+                <div class="tab-pane" id="metin-siniflandirma">
+                    <h2>Metin Sınıflandırma</h2>
+                    <div class="form-group">
+                        <label for="siniflandirma-metin">Metin:</label>
+                        <textarea id="siniflandirma-metin" rows="3" placeholder="Metin girin...">I really enjoyed this movie, it was fantastic!</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="kategori-sayisi">Kategori Sayısı:</label>
+                        <input type="range" id="kategori-sayisi" min="2" max="5" value="2">
+                        <span id="kategori-sayisi-value">2</span>
+                    </div>
+                    <button id="siniflandirma-button" class="primary-button">Metin Sınıflandır</button>
+                    <div id="siniflandirma-output" class="output-area"></div>
+                </div>
+
+                <!-- Sıfır-Atış Sınıflandırma -->
+                <div class="tab-pane" id="sifir-atis">
+                    <h2>Sıfır-Atış Sınıflandırma</h2>
+                    <div class="form-group">
+                        <label for="sifir-atis-metin">Metin:</label>
+                        <textarea id="sifir-atis-metin" rows="3" placeholder="Metin girin...">I really enjoyed this movie, it was fantastic!</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="etiketler">Etiketler (virgülle ayırın):</label>
+                        <textarea id="etiketler" rows="2" placeholder="Etiketleri virgülle ayırarak girin...">positive,negative,neutral</textarea>
+                    </div>
+                    <button id="sifir-atis-button" class="primary-button">Sıfır-Atış Sınıflandır</button>
+                    <div id="sifir-atis-output" class="output-area"></div>
+                </div>
+
+                <!-- Cümle Benzerliği -->
+                <div class="tab-pane" id="cumle-benzerligi">
+                    <h2>Cümle Benzerliği</h2>
+                    <div class="form-group">
+                        <label for="cumle1">Cümle 1:</label>
+                        <textarea id="cumle1" rows="3" placeholder="İlk cümleyi buraya yazın...">Yapay zeka, insan zekasını taklit eden sistemlerdir.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cumle2">Cümle 2:</label>
+                        <textarea id="cumle2" rows="3" placeholder="İkinci cümleyi buraya yazın...">AI, insan benzeri zeka gösteren bilgisayar sistemleridir.</textarea>
+                    </div>
+                    <button id="benzerlik-button" class="primary-button">Benzerliği Hesapla</button>
+                    <div id="benzerlik-output" class="output-area"></div>
+                </div>
+
+                <!-- Görsel Soru Cevaplama -->
+                <div class="tab-pane" id="gorsel-soru">
+                    <h2>Görsel Soru Cevaplama</h2>
+                    <div class="form-group">
+                        <label for="gorsel-input">Görüntü:</label>
+                        <input type="file" id="gorsel-input" accept="image/*">
+                        <div id="gorsel-preview" class="image-preview"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="gorsel-soru">Soru:</label>
+                        <textarea id="gorsel-soru" rows="2" placeholder="Görüntü hakkında bir soru sorun...">Bu görüntüde ne var?</textarea>
+                    </div>
+                    <button id="gorsel-button" class="primary-button">Soruyu Cevapla</button>
+                    <div id="gorsel-output" class="output-area"></div>
+                </div>
+
+                <!-- Metin Düzeltme -->
+                <div class="tab-pane" id="metin-duzeltme">
+                    <h2>Metin Düzeltme</h2>
+                    <div class="form-group">
+                        <label for="duzeltme-metin">Düzeltilecek Metin:</label>
+                        <textarea id="duzeltme-metin" rows="3" placeholder="Düzeltilecek metni buraya yazın...">I havv a problm with my computr. It dosnt work proprly.</textarea>
+                    </div>
+                    <button id="duzeltme-button" class="primary-button">Metni Düzelt</button>
+                    <div id="duzeltme-output" class="output-area"></div>
+                </div>
+
+                <!-- Çok Sınıflı Duygu Analizi -->
+                <div class="tab-pane" id="cok-duygu">
+                    <h2>Çok Sınıflı Duygu Analizi</h2>
+                    <div class="form-group">
+                        <label for="cok-duygu-metin">Metin:</label>
+                        <textarea id="cok-duygu-metin" rows="3" placeholder="Analiz edilecek metni buraya yazın...">I'm so happy to see you again! It's been a long time and I missed you so much.</textarea>
+                    </div>
+                    <button id="cok-duygu-button" class="primary-button">Duyguları Analiz Et</button>
+                    <div id="cok-duygu-output" class="output-area"></div>
+                </div>
+
+                <!-- Konuşma Tanıma -->
+                <div class="tab-pane" id="konusma-tanima">
+                    <h2>Konuşma Tanıma</h2>
+                    <div class="form-group">
+                        <label for="konusma-dil">Konuşma Dili:</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="konusma-dil" value="tr" checked> Türkçe
+                            </label>
+                            <label>
+                                <input type="radio" name="konusma-dil" value="en"> İngilizce
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="audio-input">Ses Dosyası:</label>
+                        <input type="file" id="audio-input" accept="audio/*">
+                        <div class="audio-controls">
+                            <button id="record-button" class="secondary-button">
+                                <i class="fas fa-microphone"></i> Kayıt Başlat
+                            </button>
+                            <button id="stop-button" class="secondary-button" disabled>
+                                <i class="fas fa-stop"></i> Kayıt Durdur
+                            </button>
+                            <audio id="audio-preview" controls style="display: none;"></audio>
+                        </div>
+                    </div>
+                    <button id="konusma-button" class="primary-button">Konuşmayı Tanı</button>
+                    <div id="konusma-output" class="output-area"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>🤗 Transformers Pipeline Demo | Hugging Face Türkçe Eğitim</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 
